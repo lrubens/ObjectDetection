@@ -1,7 +1,6 @@
-function corners = harris_corner_detector(image, threshold)
+function corners = harris_corner_detector(image, threshold, window)
   global DEBUG
   k = .04;
-  window = 13;
   [Ix, Iy] = imgradientxy(image);
   Ix_2 = Ix .^ 2;
   Iy_2 = Iy .^ 2;

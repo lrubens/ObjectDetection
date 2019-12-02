@@ -3,49 +3,48 @@ close all
 imtool close all
 
 global DEBUG
-DEBUG = 1;
+DEBUG = 0;
 train_dir = "CarTrainImages";
 test_dir = "CarTestImages";
+results_dir = "results/";
+harris_threshold = 1e4;
+harris_window = 8;
+clusters = 20;
 
+%% Get images
 train_imgs = get_images(train_dir);
 test_imgs = get_images(test_dir);
-train_num_frames = length(train_imgs.Files);
-test_num_frames = length(test_imgs.Files);
-[row1, col1, ~] = size(read(train_imgs));
-[row2, col2, ~] = size(read(test_imgs));
-size1 = [row1, col1];
 
-harris_threshold = 1e6;
+%% Init Object Detection process
 
-train_corners = [];
-video = [];
-figure;
-for i = 1:train_num_frames
-  imframe = frame(readimage(train_imgs, i), size1);
-  imframe = imframe.set_corners(harris_threshold);
-  imframe = imframe.set_patches();
-  video = [video; imframe];
-end
+categorizer = detector(harris_threshold, harris_window, clusters, results_dir);
 
-play_video(video);
+%% Perform training
 
+categorizer = categorizer.init_training_stage(train_imgs);
+categorizer = categorizer.apply_kmeans(clusters);
+categorizer = categorizer.build_visual_vocab();
+categorizer = categorizer.set_training_visual_words();
+categorizer = categorizer.get_displacement_vectors();
+
+% categorizer.debug_frames();
+
+%% Perform Object Detection Tests
+
+categorizer = categorizer.init_detection_stage(test_imgs);
+categorizer = categorizer.set_testing_visual_words();
+categorizer = categorizer.perform_hough_transform_voting();
+
+%% Test detector
+test_sample = 25;
+categorizer.debug_accumulator(test_sample);    % Saves accumulator to file
+categorizer.debug_detector(test_sample);       % Displays detector result
 
 %% Utility Functions
-
-% Read images from directory
 function images = get_images(dir)
   if ~isfolder(dir)
-    sprintf("Directory does not exits\n");
+    sprintf("Directory does not exist\n");
     return;
   end
   images = imageDatastore(dir);
-end
-
-%% Debugging functions
-function play_video(video)
-  num_frames = length(video);
-  figure;
-  for i = 1:100
-    imshow(video(i, 1).get_image());
-  end
 end
