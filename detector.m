@@ -208,7 +208,7 @@ classdef detector
             ratio = bboxOverlapRatio(actual_rect_vec, predicted_rect_vec, 'Union');
             if ratio > max_prediction
               max_prediction = ratio;
-              continue;
+              break;
             end
           end
           total_box = total_box + 1;
