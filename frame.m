@@ -11,6 +11,7 @@ classdef frame
     displacement
     accumulator
     accumulator_max
+    prediction_accuracy
   end
   
   methods
@@ -40,21 +41,24 @@ classdef frame
     function obj = set_patches(obj)
       %set_patches Create patches from corners
       %   Creates 25 by 25 patch around each corner
+      removed_corners = [];
       for i = 1:length(obj.corners)
         location = round(obj.corners(i,:));
-        patch = get_window(obj.image, location, 25);
+        patch = get_window(obj.get_image(), location, 25);
         if isnan(patch)
+          removed_corners = [removed_corners; i];
           continue;
         end
         patch_obj = feature_patch(patch, obj.frame_num, location);
         obj.patches = [obj.patches; patch_obj];
       end
+      [obj.corners, ~] = removerows(obj.corners, 'ind', removed_corners);
       obj.num_features = length(obj.patches);
     end
     
     function flat_patches = get_patches(obj)
       %get_patches Get flat patches
-      %   Gets all patches in frame reshaped to 1D
+      %   Gets all patches in frame reshaped to 1D flat vectors
       flat_patches = [];
       for i = 1:obj.num_features
         flat_patches = vertcat(flat_patches, obj.patches(i).flat_patch);
@@ -93,9 +97,14 @@ classdef frame
       obj.patches(index) = obj.patches(index).assign_visual_word(word);
     end
     
-    function obj = set_visual_word(obj, words)
+    function display_image_corners(obj)
+      display_corners(obj.get_image(), obj.corners);
+    end
+    
+    function obj = set_visual_word(obj, words, ssd_threshold)
       %set_visual_word Assigns each local patch with visual word based on
       %which visual word is closest based on SSD
+      removed_patches = [];
       for i = 1:obj.num_features
         temp_ssd = inf;
         temp_match = 0;
@@ -106,9 +115,16 @@ classdef frame
             temp_match = j;
           end
         end
-%         imshowpair(imresize(obj.patches(i).get_patch(), 4), imresize(words(temp_match).get_patch(), 4), 'montage');
-        obj.patches(i) = obj.patches(i).assign_visual_word(temp_match);
+        if temp_ssd < ssd_threshold
+          obj.patches(i) = obj.patches(i).assign_visual_word(temp_match);
+        else
+          removed_patches = [removed_patches, i];
+        end
       end
+    end
+    
+    function obj = set_prediction_accuracy(obj, accuracy)
+      obj.prediction_accuracy = accuracy;
     end
   end
 end

@@ -1,6 +1,5 @@
 classdef feature_patch
-  %patch Summary of this class goes here
-  %   Detailed explanation goes here
+  %feature_patch Object for image feature and corresponding patch
   
   properties
     visual_word
@@ -12,8 +11,6 @@ classdef feature_patch
   
   methods
     function obj = feature_patch(patch, frame_num, feature)
-      %UNTITLED2 Construct an instance of this class
-      %   Detailed explanation goes here
       if nargin < 3
         frame_num = NaN;
         feature = NaN;
@@ -33,8 +30,7 @@ classdef feature_patch
     end
     
     function obj = assign_visual_word(obj, visual_word) 
-      %assign_visual_word Summary of this method goes here
-      %   Detailed explanation goes here
+      %assign_visual_word Assign visual word to patch
       obj.visual_word = visual_word;
     end
   end

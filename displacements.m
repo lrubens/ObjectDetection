@@ -1,6 +1,6 @@
 classdef displacements
-  %UNTITLED4 Summary of this class goes here
-  %   Detailed explanation goes here
+  %displacements Object for storing displacement vectors for a specific
+  %visual word
   
   properties
     visual_word
@@ -9,8 +9,6 @@ classdef displacements
   
   methods
     function obj = displacements(visual_word)
-      %UNTITLED4 Construct an instance of this class
-      %   Detailed explanation goes here
       if nargin == 0
         obj.visual_word = 0;
       else
@@ -19,8 +17,6 @@ classdef displacements
     end
     
     function obj = add_displacement_vector(obj,vector)
-      %METHOD1 Summary of this method goes here
-      %   Detailed explanation goes here
       obj.vectors = [obj.vectors; vector];
     end
     
