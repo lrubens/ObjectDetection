@@ -10,11 +10,12 @@ ground_truth = "GroundTruth/CarsGroundTruthBoundingBoxes.mat";
 
 %% Set Detector Parameters
 
-harris_threshold = 5e7;
-harris_window = 9;
+harris_threshold = 1e8;
+harris_window = 13;
 num_clusters = 50;
-ssd_threshold = 2;
-hough_vote_below_threshold = 1;
+ssd_threshold = inf;
+hough_vote_below_threshold = 0;
+accumulator_window = 5;
 
 %% Get images
 train_imgs = get_images(train_dir);
@@ -40,14 +41,14 @@ end
 
 categorizer = categorizer.init_detection_stage(test_imgs);
 categorizer = categorizer.set_testing_visual_words(ssd_threshold);
-categorizer = categorizer.perform_hough_transform_voting(hough_vote_below_threshold);
+categorizer = categorizer.perform_hough_transform_voting(hough_vote_below_threshold, accumulator_window);
 categorizer = categorizer.compute_accuracy();
 
 %% Test detector for sample image
 test_sample = 100;
 categorizer.debug_accumulator(test_sample);    % Saves accumulator to file
 categorizer.display_bounding_box(test_sample);   % Displays bounding box for one test sample
-categorizer.debug_detector(test_sample);       % Displays detector result
+% categorizer.debug_detector(test_sample);       % Displays detector result
 
 %% Debug bounding boxes for test images
 % Careful with this one as it may spawn 100 figures

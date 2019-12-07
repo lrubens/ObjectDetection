@@ -146,12 +146,12 @@ classdef detector
       end
     end
 
-    function obj = perform_hough_transform_voting(obj, next_best_threshold)
+    function obj = perform_hough_transform_voting(obj, next_best_threshold, accumulator_window)
       if nargin < 2
         next_best_threshold = 0;
+        accumulator_window = 7; 
       end
       disp("Performing generalized hough transform voting...");
-      accumulator_window = 7;  
       for i = 1:obj.test_num_frames
         im_size = obj.test_images(i).size;
         obj.test_images(i).accumulator = uint8(zeros(im_size));
